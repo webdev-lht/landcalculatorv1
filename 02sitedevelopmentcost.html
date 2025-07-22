@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Site Development Cost</title>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Leaflet Core -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet Draw -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+    <!-- Leaflet Measure -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-measure-path@2.2.2/leaflet-measure-path.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure-path@2.2.2/leaflet-measure-path.css" />
+
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #mapWrapper {
+        height: 40vh;
+        position: relative;
+        flex-shrink: 0;
+        background: white;
+        z-index: 100;
+      }
+
+      #formScrollableArea {
+        height: 60vh;           /* fills the rest below the map */
+        overflow-y: auto;
+        padding: 1rem;
+        background: #f8f9fa;
+      }
+
+    </style>
+  
+
+
+  </head>
+  <body class="bg-light">
+
+    <!-- Header -->
+    <nav class="navbar lime-header bg-dark px-3">
+      <div class="container-fluid text-white">
+        <a href="00b.dashboard.html" class="btn btn-sm btn-outline-light me-2">← Back</a>
+        <span class="navbar-brand mb-0 h6 text-white">Site Development Cost</span>
+      </div>
+    </nav>
+
+  <!-- Sticky Map -->
+    <div id="mapWrapper">
+      <h6 class="fw-bold p-2 mb-0">Explore Your Property</h6>
+      <p class="text-muted small px-2 mb-1">Use the tools to draw, measure distances, or mark zones.</p>
+      <div id="siteDevMap" style="height: calc(40vh - 3.5rem);"></div>
+    </div>
+
+    <!-- Form Body -->
+    <!--- Scrollable Form --->
+    <div id="formScrollableArea" class="bg-light">
+      <div class="container mt-4 mb-5">
+        <h5 class="fw-bold mb-4">Site Development Cost</h5>
+
+        <!-- Fence -->
+        <div class="mb-4">
+          <h6 class="fw-bold">Fence Construction</h6>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Material</label>
+              <select id="fenceMaterial" class="form-select">
+                <option selected disabled>Choose...</option>
+                <option>4-Strand Barbed Wire with T-Posts and Corners</option>
+                <option>Wood</option>
+                <option>Chain Link</option>
+                <option>Wrought Iron</option>
+                <option>Vinyl</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Length (ft)</label>
+              <input type="number" id="fenceLength" class="form-control" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Unit Cost ($/ft)</label>
+              <input type="number" id="fenceUnitCost" class="form-control" min="0" step="0.01" value="5.00">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Subtotal ($)</label>
+              <input type="text" id="fenceSubtotal" class="form-control" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clearing -->
+        <div class="mb-4">
+          <h6 class="fw-bold">Land Clearing, Mowing, and Shredding</h6>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-2">
+              <label class="form-label">Area (acres)</label>
+              <input type="number" id="clearArea" class="form-control" min="0" \>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Unit Cost ($/acre)</label>
+              <input type="number" id="clearUnitCost" class="form-control" min="0" step="0.01" step="0.01" value="450">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Subtotal ($)</label>
+              <input type="text" id="clearSubtotal" class="form-control" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Driveway Preparation -->
+        <div class="mb-4">
+          <h6 class="fw-bold">Driveway Preparation with 18"⌀ x 20' Culvert</h6>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Material</label>
+              <select id="drivewayMaterial" class="form-select">
+                <option selected disabled>Choose...</option>
+                <option>Scraping, Grading, Sub-Base compacting for 12'x300' driveway</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Length (ft)</label>
+              <input type="number" id="drivewayPrepLength" class="form-control" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Width (ft)</label>
+              <input type="number" id="drivewayPrepWidth" class="form-control" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Unit Cost ($/sqft)</label>
+              <input type="number" id="drivewayPrepUnitCost" class="form-control" min="0" step="0.01" value="0.50">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Subtotal ($)</label>
+              <input type="text" id="drivewayPrepSubtotal" class="form-control" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Driveway -->
+        <div class="mb-4">
+          <h6 class="fw-bold">Driveway Construction</h6>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Material</label>
+              <select id="drivewayMaterial" class="form-select">
+                <option selected disabled>Choose...</option>
+                <option>6" Base + 2" Chip Seal with Proper Compaction</option>
+                <option>Concrete</option>
+                <option>Asphalt</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Length (ft)</label>
+              <input type="number" id="drivewayLength" class="form-control" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Width (ft)</label>
+              <input type="number" id="drivewayWidth" class="form-control" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Unit Cost ($/sqft)</label>
+              <input type="number" id="drivewayUnitCost" class="form-control" min="0" step="0.01" value="2.0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Subtotal ($)</label>
+              <input type="text" id="drivewaySubtotal" class="form-control" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gate -->
+        <div class="mb-4">
+          <h6 class="fw-bold">Gate Construction</h6>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Gate Type</label>
+              <select id="gateType" class="form-select">
+                <option selected disabled>Choose...</option>
+                <option>Ranch Gate with Posts and Solar Opener</option>
+                <option>Swing</option>
+                <option>Sliding</option>
+                <option>Double-Swing</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">No. of Units</label>
+              <input type="number" id="gateUnit" class="form-control" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Unit Cost ($/sqft)</label>
+              <input type="number" id="gateUnitCost" class="form-control" min="0" step="0.01" value="2500">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Subtotal ($)</label>
+              <input type="text" id="gateSubtotal" class="form-control" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mailbox Installation -->
+      <div class="col-md-2">
+        <h6 class="fw-bold">Mailbox Installation</h6>
+        <div class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label">Quantity</label>
+            <input type="number" id="mailboxQty" class="form-control" min="0" value="1">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Unit Cost ($)</label>
+            <input type="number" id="mailboxUnitCost" class="form-control" min="0" step="0.01" value="850">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Subtotal ($)</label>
+            <input type="text" id="mailboxSubTotal" class="form-control" readonly>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+        <div class="mb-3">
+          <label class="form-label fw-bold">Total Site Development Cost</label>
+          <input type="text" id="siteDevTotalCost" class="form-control readonly-input fw-bold" readonly />
+        </div>
+
+        <div class="mb-4">
+          <button class="btn btn-dark" style="max-width: 180px;" onclick="saveSiteDevCost(event)">Save</button>
+        </div>
+
+
+        <div id="totalResult" class="alert alert-success d-none"></div>
+      
+
+        <!-- Total Section (Inside the scrollable area) -->
+        <hr />
+          
+
+          <div class="d-flex justify-content-between gap-2 mb-3">
+            <a href="07landacquisitioncost.html" class="btn btn-outline-secondary w-100">⬅️ Previous Step</a>
+            <a href="03utilityconnectioncost.html" class="btn btn-outline-secondary w-100">Next Step ➡️</a>
+          </div>
+
+          <div class="d-grid gap-2 mb-5">
+            <a href="00b.dashboard.html" class="btn btn-dark">🏠 Back to Cost Dashboard</a>
+            <a href="./09finalstep.html" class="btn btn-outline-dark">✅ Review Your Estimate with LHT</a>
+          </div>
+          </div> <!-- This closes #formScrollableArea -->
+    </div>
+
+    <script>
+      function calculateSiteDevCost() {
+        const fence = (parseFloat(document.getElementById("fenceLength").value) || 0) *
+                      (parseFloat(document.getElementById("fenceUnitCost").value) || 0);
+
+        const clearing = (parseFloat(document.getElementById("clearArea").value) || 0) *
+                        (parseFloat(document.getElementById("clearUnitCost").value) || 0);
+
+        const drivewayprep = (parseFloat(document.getElementById("drivewayPrepLength").value) || 0) *
+                        (parseFloat(document.getElementById("drivewayPrepWidth").value) || 0) *
+                        (parseFloat(document.getElementById("drivewayPrepUnitCost").value) || 0);
+
+        const driveway = (parseFloat(document.getElementById("drivewayLength").value) || 0) *
+                        (parseFloat(document.getElementById("drivewayWidth").value) || 0) *
+                        (parseFloat(document.getElementById("drivewayUnitCost").value) || 0);
+
+        const gate = (parseFloat(document.getElementById("gateUnit").value) || 0) *
+                    //(parseFloat(document.getElementById("gateHeight").value) || 0) *
+                    (parseFloat(document.getElementById("gateUnitCost").value) || 0);
+        
+        const mailbox = (parseFloat(document.getElementById("mailboxQty").value) || 0) *
+                    (parseFloat(document.getElementById("mailboxUnitCost").value) || 0);
+
+        document.getElementById("fenceSubtotal").value = `$${fence.toFixed(2)}`;
+        document.getElementById("clearSubtotal").value = `$${clearing.toFixed(2)}`;
+        document.getElementById("drivewayPrepSubtotal").value = `$${drivewayprep.toFixed(2)}`;
+        document.getElementById("drivewaySubtotal").value = `$${driveway.toFixed(2)}`;
+        document.getElementById("gateSubtotal").value = `$${gate.toFixed(2)}`;
+        document.getElementById("mailboxSubTotal").value = `$${mailbox.toFixed(2)}`;
+
+        const total = fence + clearing + drivewayprep + driveway + gate + mailbox;
+        document.getElementById("siteDevTotalCost").value = `$${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+        localStorage.setItem("siteDevelopmentCost", total.toFixed(2));
+      }
+
+      function saveSiteDevCost() {
+        if (e) e.preventDefault();
+        alert("Site Development Cost saved!");
+        return false;
+      }
+
+      document.addEventListener("input", calculateSiteDevCost);
+      document.addEventListener("DOMContentLoaded", calculateSiteDevCost);
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <!-- Leaflet Draw -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+
+    <!-- Optional: Leaflet Measure -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.2.0/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.2.0/dist/leaflet-measure.min.css"/>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const lat = parseFloat(localStorage.getItem("latitude")) || 30.2672;
+        const lon = parseFloat(localStorage.getItem("longitude")) || -97.7431;
+        const zoom = parseInt(localStorage.getItem("zoomLevel")) || 17;
+
+        const map = L.map('siteDevMap').setView([lat, lon], zoom);
+
+        // Base Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add marker
+        L.marker([lat, lon]).addTo(map).bindPopup("Selected Property").openPopup();
+
+        // Load Burnet Parcels
+        fetch("./assets/data/burnet_parcels.geojson")
+          .then(res => res.json())
+          .then(data => {
+            const parcelLayer = L.geoJSON(data, {
+              style: {
+                color: "#0078A8",
+                weight: 1,
+                fillOpacity: 0.1
+              },
+              onEachFeature: (feature, layer) => {
+                if (feature.properties) {
+                  layer.bindPopup(
+                    Object.entries(feature.properties)
+                      .map(([k, v]) => `<strong>${k}</strong>: ${v}`)
+                      .join("<br>")
+                  );
+                }
+              }
+            });
+            parcelLayer.addTo(map);
+          })
+          .catch(err => console.error("Error loading GeoJSON:", err));
+
+        // Drawing Layer
+        const drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        const drawControl = new L.Control.Draw({
+          edit: { featureGroup: drawnItems },
+          draw: {
+            polygon: true, polyline: true, rectangle: true,
+            circle: false, marker: true
+          }
+        });
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function (e) {
+          const layer = e.layer;
+          drawnItems.addLayer(layer);
+          const geojson = drawnItems.toGeoJSON();
+          localStorage.setItem("siteDevSketch", JSON.stringify(geojson));
+        });
+
+        // Restore Sketches
+        const saved = localStorage.getItem("siteDevSketch");
+        if (saved) {
+          L.geoJSON(JSON.parse(saved)).eachLayer(layer => {
+            drawnItems.addLayer(layer);
+          });
+        }
+
+        // Measurement
+        L.control.measurePath({
+          showBearings: true,
+          showUnitControl: true,
+          measureControlTitleOn: 'Enable measuring tool',
+          measureControlTitleOff: 'Disable measuring tool',
+          unitControlUnits: {
+            length: 'feet',
+            area: 'acres'
+          }
+        }).addTo(map);
+      });
+    </script>
+
+  </body>
+</html>

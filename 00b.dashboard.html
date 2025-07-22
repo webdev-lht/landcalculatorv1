@@ -9,12 +9,13 @@
       rel="stylesheet"
     />
     <style>
-      body {
+       body {
         background-color: #f5f5f5;
-      }
-      .lime-header {
-        background-color: #b6b813; /* same lime color */
-      }
+        }
+        .lime-header {
+          background-color: #b6b813; /* same lime color */
+        }
+        
     </style>
   </head>
   <body>
@@ -26,6 +27,7 @@
           <img src="./assets/img/001.lhtlogo-main.png" alt="LHT Logo" width="32" height="32" class="me-2" />
           <span class="fw-bold text-dark">LHT Land Calculator</span>
         </div>
+        <a href="00a.maindashboard.html" class="btn btn-sm btn-outline-dark me-2">← Back</a>
         <button class="btn btn-sm btn-outline-dark">Logout</button>
       </div>
     </nav>
@@ -37,44 +39,123 @@
 
       <!-- Modules -->
       <div class="row g-3">
-        <div class="col-12">
-          <a href="/01landacquisitioncost.html" class="btn btn-dark w-100 text-start">
-            🏞 Land Purchase Cost
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <a href="./01landacquisitioncost.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+            <span style="font-size: 0.9rem;">🏞 Land Purchase Cost</span>
           </a>
+          <span id="landPurchaseCost" class="badge bg-secondary px-5 py-2">$0.00</span>
         </div>
-        <div class="col-12">
-          <a href="#" class="btn btn-dark w-100 text-start">
-            🏗 Site Development Cost
+        <div class="d-flex justify-content-between align-items-center mb-2">
+         <a href="./08duediligence.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+         <span id="dueDiligenceCost" style="font-size: 0.9rem;">🧪 Due Diligence (Pre-Development)</span>
+         </a>
+        <span id="total_dueDiligence" class="badge bg-secondary px-5 py-2">$0.00</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <a href="./02sitedevelopmentcost.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+            <span style="font-size: 0.9rem;">🏗 Site Development Cost</span>
           </a>
+          <span id="total_siteDev" class="badge bg-secondary px-5 py-2">$0.00</span>
         </div>
-        <div class="col-12">
-          <a href="#" class="btn btn-dark w-100 text-start">
-            🔌 Utility Connection Cost
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <a href="03utilityconnectioncost.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+            <span style="font-size: 0.9rem;">🔌 Utility Connection Cost</span>
           </a>
+          <span id="total_utility" class="badge bg-secondary px-5 py-2">$0.00</span>
         </div>
-        <div class="col-12">
-          <a href="#" class="btn btn-dark w-100 text-start">
-            🚧 Building Preparation Cost
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <a href="./04buildingprepartioncost.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+            <span style="font-size: 0.9rem;">🚧 Building Preparation Cost</span>
           </a>
+          <span id="total_buildPrep" class="badge bg-secondary px-5 py-2">$0.00</span>
         </div>
-        <div class="col-12">
-          <a href="#" class="btn btn-dark w-100 text-start">
-            📜 Zoning & Legal
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <a href="./05zoningandlegal.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+            <span style="font-size: 0.9rem;">📜 Zoning & Legal</span>
           </a>
+          <span id="total_zoningLegal" class="badge bg-secondary px-5 py-2">$0.00</span>
         </div>
-        <div class="col-12">
-          <a href="#" class="btn btn-dark w-100 text-start">
-            💵 Financing & Holding Costs
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <a href="./06financingandholdingcosts.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+            <span style="font-size: 0.9rem;">💵 Financing & Holding Costs</span>
           </a>
+          <span id="total_finance" class="badge bg-secondary px-5 py-2">$0.00</span>
         </div>
-        <div class="col-12">
-          <a href="#" class="btn btn-dark w-100 text-start">
-            🏠 Building Construction Estimate (Optional)
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <a href="./07buildingconstructionestimate.html" class="btn btn-dark d-flex align-items-center flex-grow-1 me-2" style="max-width: 220px;">
+            <span style="font-size: 0.9rem;">🏠 Building Construction Estimate (Optional)</span>
           </a>
+          <span id="total_buildCost" class="badge bg-secondary px-5 py-2">$0.00</span>
         </div>
+        <div class="text-end fw-bold">
+          Grand Total: <span id="grandTotal" class="text-success">$0</span>
+        </div>
+
+        <div class="d-grid mt-3">
+          <button class="btn btn-success fw-bold" onclick="window.print()">
+              🖨️ Click to Print Your Calculated Cost (PDF)
+          </button>
+          <a href="./09finalstep.html" class="btn btn-outline-dark w-100">✅ Review with an LHT Expert</a>
+        </div>
+
+        <p id="autosaveNotice" class="text-muted text-center small mt-2" style="display:none;">
+           Your estimates are automatically saved. You can return anytime to continue.
+        </p>
+
       </div>
     </div>
 
+    <script>
+      function formatUSD(val) {
+        return `$${parseFloat(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      }
+
+      function loadCostEstimates() {
+        document.getElementById("landPurchaseCost").textContent = formatUSD(localStorage.getItem("landPurchaseCost"));
+        document.getElementById("total_dueDiligence").textContent = formatUSD(localStorage.getItem("dueDiligenceCost"));
+        document.getElementById("total_siteDev").textContent = formatUSD(localStorage.getItem("siteDevelopmentCost"));
+        document.getElementById("total_utility").textContent = formatUSD(localStorage.getItem("utilityConnectionCost"));
+        document.getElementById("total_buildPrep").textContent = formatUSD(localStorage.getItem("buildingPrepCost"));
+        document.getElementById("total_zoningLegal").textContent = formatUSD(localStorage.getItem("zoningLegalTotal"));
+        document.getElementById("total_finance").textContent = formatUSD(localStorage.getItem("financingAndHoldingCost"));
+        document.getElementById("total_buildCost").textContent = formatUSD(localStorage.getItem("buildingConstructionEstimate"));
+
+        // Total all
+        const total = [
+          "landPurchaseCost",
+          "dueDiligenceCost",
+          "siteDevelopmentCost",
+          "utilityConnectionCost",
+          "buildingPrepCost",
+          "zoningLegalTotal",
+          "financingAndHoldingCost",
+          "buildingConstructionEstimate"
+        ].reduce((sum, key) => sum + (parseFloat(localStorage.getItem(key)) || 0), 0);
+
+        document.getElementById("grandTotal").textContent = formatUSD(total);
+      }
+
+      window.onload = loadCostEstimates;
+    </script>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        const location = localStorage.getItem("selectedLocation");
+        if (location) {
+          const welcomeSection = document.querySelector(".container");
+          const locationLine = document.createElement("p");
+          locationLine.innerHTML = `<em class="text-muted small">You selected: ${location}</em>`;
+          welcomeSection.insertBefore(locationLine, welcomeSection.children[1]);
+        }
+      });
+    </script>
+
+    <footer class="bg-light text-center text-muted small py-2 border-top mt-4">
+      ⚠️ <strong>Disclaimer:</strong> All estimated costs in this app are for ballpark reference only and should not be used for bidding or final project costing.
+    </footer>
+
   </body>
 </html>

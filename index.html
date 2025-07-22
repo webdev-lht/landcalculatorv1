@@ -1,3 +1,9 @@
+<!--===========================================================
+                LandHomesTexas (LHT)
+                Land Calculator
+                June 27, 2025
+                Joven Moralejo
+============================================================-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,13 +14,60 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
+    <script type="module" src="./assets/js/firebase.js"></script>
+
+    <!-- Firebase App (Core SDK) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+      import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    </script>
+
     <style>
       body {
         background-color: #ffffff;
       }
-      .lime-bg {
-        background-color: #b6b813; /* Approx. lime green */
+
+      .background {
+        background-image: url('./assets/img/002.background01.png');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
+
+      .lime-bg {
+        background-color: #e0e0e0;
+      }
+      .btn-outline-dark img {
+        height: 18px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+      .btn-google {
+        background-color: #ffffff;
+        border: 1px solid #dadce0;
+        color: #3c4043;
+      }
+      .btn-google:hover {
+        background-color: #f1f3f4;
+      }
+
+      .btn-apple {
+        background-color: #000;
+        color: #fff;
+        border: none;
+      }
+      .btn-apple:hover {
+        background-color: #222;
+      }
+
+      #designedby {
+        font-size: 10px;
+      }
+
     </style>
   </head>
   <body class="d-flex align-items-center justify-content-center vh-100">
@@ -36,6 +89,7 @@
             <input
               type="text"
               class="form-control"
+              id="login-identifier"
               placeholder="Email, username, phone"
               required
             />
@@ -44,21 +98,83 @@
             <input
               type="password"
               class="form-control"
+              id="login-password"
               placeholder="Password"
-              required
+              required autofocus
             />
           </div>
-          <div class="mb-3 text-end">
+          <div class="d-grid mb-3 text-end">
             <a href="#" class="text-decoration-none small text-dark fw-semibold">Forgot Password?</a>
           </div>
-          <div class="d-grid">
-            <a href="00a.maindashboard.html" class="btn btn-dark">Log In</a>
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-dark w-100">Log In</button>
+          </div>
+
+          <!--- Continue with Google --->
+          <div class="d-grid mb-3">
+            <button type="button" class="btn btn-google d-flex align-items-center justify-content-center gap-2" style="background-color: #fff; color: #3c4043; border: 1px solid #dadce0; padding: 8px 12px;">
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style="height: 20px;" />
+              <span>Continue with Google</span>
+            </button>
+          </div>
+
+          <!--- Continue with Apple --->
+          <div class="d-grid mb-3">
+            <button type="button" class="btn btn-apple d-flex align-items-center justify-content-center gap-2" style="background-color: #fff; color: #3c4043; border: 1px solid #dadce0; padding: 8px 12px;">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" style="height: 20px;" />
+              <span>Continue with Apple</span>
+            </button>
+          </div>
+
+          <!-- Create Account -->
+          <div class="text-center mt-3 mb-2">
+            <a href="registration.html" class="text-decoration-none fw-semibold text-dark">Create an Account</a>
+          </div>
+
+          <!-- Terms & Privacy -->
+          <div class="text-center small text-dark mb-2">
+            By clicking continue, you agree to our 
+            <a href="#" class="text-decoration-none">Terms of Use</a> and 
+            <a href="#" class="text-decoration-none">Privacy Policy</a>.
+          </div>
+
+          <!-- Footer credit -->
+          <div class="text-center small text-muted" id="designedby">
+            Designed by LHT Feasibility Committee
           </div>
 
         </form>
       </div>
-
     </div>
+
+    <script type="module">
+      import { db } from './assets/js/firebase.js';
+      import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+      document.querySelector("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const identifier = document.getElementById("login-identifier").value.trim();
+        const password = document.getElementById("login-password").value.trim();
+
+        // Query Firestore: match either email or phone + password
+        const usersRef = collection(db, "users"); // collection name
+        const q = query(
+          usersRef,
+          where("password", "==", password),
+          where("identifier", "==", identifier)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          alert("Login successful!");
+          window.location.href = "00a.maindashboard.html"; // redirect on success
+        } else {
+          alert("Invalid login. Please try again.");
+        }
+      });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>

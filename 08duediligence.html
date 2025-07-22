@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Due Diligence Cost</title>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Leaflet Core -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet Draw -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+    <!-- Leaflet Measure -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-measure-path@2.2.2/leaflet-measure-path.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure-path@2.2.2/leaflet-measure-path.css" />
+
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+      }
+
+      #mapWrapper {
+        height: 40vh;
+        position: relative;
+        flex-shrink: 0;
+        background: white;
+        z-index: 100;
+      }
+
+      #formScrollableArea {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #f8f9fa;
+      }
+
+      .readonly-box {
+          background-color: #f8f9fa;
+          border: 1px solid #ced4da;
+          padding: 6px 12px;
+          border-radius: 0.25rem;
+      }
+      
+      td.study-label {
+        font-weight: 500;
+        }
+
+      .table-responsive {
+        overflow-x: auto;
+        }
+
+      .table td.study-label {
+        white-space: normal;
+        word-wrap: break-word;
+        max-width: 80px;
+        font-size: 0.85rem;
+      }
+      
+      th.unit-price-col,
+      td.unit-price-col {
+        white-space: normal;
+        max-width: 80px;
+        width: 1%;
+        font-size: 0.85rem;
+      }
+
+      .table th,
+      .table td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+      }  
+
+      @media (max-width: 576px) {
+        .table {
+          font-size: 0.85rem;
+        }
+
+        .table td, .table th {
+          white-space: nowrap;
+        }
+      }
+    </style>
+
+  </head>
+  <body class="bg-light">
+
+    <!-- Header -->
+    <nav class="navbar lime-header bg-dark px-3">
+      <div class="container-fluid text-white">
+        <a href="00b.dashboard.html" class="btn btn-sm btn-outline-light me-2">← Back</a>
+        <span class="navbar-brand mb-0 h6 text-white">Due Diligence Cost</span>
+      </div>
+    </nav>
+
+    <!-- Sticky Map -->
+      <div id="mapWrapper">
+        <h6 class="fw-bold p-2 mb-0">Explore Your Property</h6>
+        <p class="text-muted small px-2 mb-1">Use the tools to draw, measure distances, or mark zones.</p>
+        <div id="siteDevMap" style="height: calc(40vh - 3.5rem);"></div>
+      </div>
+
+    <!-- Form Body -->
+    <!--- Scrollable Form --->
+     <div class="mb-3">
+      <label for="acreage" class="form-label">Size of Property (in acres)</label>
+      <input type="number" class="form-control" id="acreage" min="0" placeholder="e.g. 10" style="max-width: 180px;"/>
+    </div>
+
+    <div class="px-2">
+      <div class="table-responsive">
+        <table class="table table-bordered bg-white mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="text-center" style="white-space: normal; vertical-align: middle;">Study</th>
+              <th class="unit-price-col text-center" style="white-space: normal; vertical-align: middle;">Unit Price<br>($/Acre or Flat)</th>
+              <th class="text-center" style="white-space: normal; vertical-align: middle;">Acreage</th>
+              <th class="text-center" style="white-space: normal; vertical-align: middle;">Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="study-label">Soil Test</td>
+              <td id="unit_soil">$0.00</td>
+              <td id="acres_soil">0</td>
+              <td id="cost_soil">$0.00</td>
+            </tr>
+            <tr>
+              <td class="study-label">Topographic & Boundary Survey</td>
+              <td id="unit_survey">$0.00</td>
+              <td id="acres_survey">0</td>
+              <td id="cost_survey">$0.00</td>
+            </tr>
+            <tr>
+              <td class="study-label">Environmental Assessment</td>
+              <td id="unit_env">$0.00</td>
+              <td id="acres_env">0</td>
+              <td id="cost_env">$0.00</td>
+            </tr>
+            <tr>
+              <td class="study-label">Floodplain Verification</td>
+              <td id="unit_flood">$0.00</td>
+              <td id="acres_flood">0</td>
+              <td id="cost_flood">$0.00</td>
+            </tr>
+            <tr>
+              <td class="study-label">Georesistivity</td>
+              <td id="unit_survey">$0.00</td>
+              <td id="acres_survey">0</td>
+              <td id="cost_survey">$0.00</td>
+            </tr>
+            <tr>
+              <td class="study-label">Utility Availability Research</td>
+              <td id="unit_utility">Flat</td>
+              <td class="text-center" colspan="1">—</td>
+              <td id="cost_utility">$0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+      <hr />
+        <div class="mb-3">
+            <label class="form-label fw-bold">Total Due Diligence Total Cost</label>
+            <input type="text" id="dueDiligenceCostDisplay" class="form-control readonly-input fw-bold" readonly />
+          </div>
+
+        <button id="totalResult" class="btn btn-dark" style="max-width: 180px; margin: 20px;" onclick="saveAndContinue()">Save</button>
+    </div>
+
+    <div class="d-flex justify-content-between gap-2 mt-4" style="max-width: 100%;">
+      <a href="01landacquisitioncost.html" class="btn btn-outline-secondary w-100">
+        ⬅️ Previous Step
+      </a>
+      <a href="02sitedevelopmentcost.html" class="btn btn-outline-secondary w-100">
+        Next Step ➡️
+      </a>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      <a href="00b.dashboard.html" class="btn btn-dark">
+        🏠 Back to Cost Dashboard
+      </a>
+      <a href="contact-lht.html" class="btn btn-outline-dark">
+        ✅ Review Your Estimate with LHT
+      </a>
+    </div>
+
+  </div>
+
+    <script>
+        const pricing = {
+          Bell:        { soil: 45, survey: 150, env: 100, flood: 20, utility: 300 },
+          Burnet:      { soil: 50, survey: 160, env: 110, flood: 25, utility: 320 },
+          Travis:      { soil: 55, survey: 170, env: 120, flood: 30, utility: 350 },
+          Washington:  { soil: 50, survey: 160, env: 115, flood: 28, utility: 340 },
+          Williamson:  { soil: 60, survey: 180, env: 130, flood: 35, utility: 370 }
+        };
+
+        const county = localStorage.getItem("selectedCounty") || "Williamson";
+        const acreageInput = document.getElementById("acreage");
+        const totalCostField = document.getElementById("dueDiligenceCostDisplay");
+
+        const fields = [
+          { key: 'soil', label: 'unit_soil', acres: 'acres_soil', cost: 'cost_soil' },
+          { key: 'survey', label: 'unit_survey', acres: 'acres_survey', cost: 'cost_survey' },
+          { key: 'env', label: 'unit_env', acres: 'acres_env', cost: 'cost_env' },
+          { key: 'flood', label: 'unit_flood', acres: 'acres_flood', cost: 'cost_flood' }
+        ];
+
+        function updateDueDiligenceCosts() {
+          const acreage = parseFloat(acreageInput.value) || 0;
+          localStorage.setItem("enteredAcreage", acreage);
+          const rate = pricing[county];
+          let total = 0;
+
+          fields.forEach(({ key, label, acres, cost }) => {
+            const unit = rate[key];
+            const subtotal = unit * acreage;
+            document.getElementById(label).textContent = `$${unit.toFixed(2)}`;
+            document.getElementById(acres).textContent = acreage;
+            document.getElementById(cost).textContent = `$${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+            total += subtotal;
+          });
+
+          // Utility flat cost
+          const utilityCost = rate.utility;
+          document.getElementById("cost_utility").textContent = `$${utilityCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+          total += utilityCost;
+
+          totalCostField.value = `$${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+          localStorage.setItem("dueDiligenceCost", total.toFixed(2));
+
+          L.control.measurePath().addTo(map);
+        }
+
+        acreageInput.addEventListener("input", updateDueDiligenceCosts);
+
+        document.addEventListener("DOMContentLoaded", () => {
+          if (localStorage.getItem("enteredAcreage")) {
+            acreageInput.value = localStorage.getItem("enteredAcreage");
+          }
+          updateDueDiligenceCosts();
+        });
+
+        function saveAndContinue() {
+          alert("Due Diligence Cost saved!");
+        }
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <!-- Leaflet Draw -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+
+    <!-- Optional: Leaflet Measure -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.2.0/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.2.0/dist/leaflet-measure.min.css"/>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const lat = parseFloat(localStorage.getItem("latitude")) || 30.2672;
+        const lon = parseFloat(localStorage.getItem("longitude")) || -97.7431;
+        const zoom = parseInt(localStorage.getItem("zoomLevel")) || 17;
+
+        const map = L.map('siteDevMap').setView([lat, lon], zoom);
+
+        // Base Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add marker
+        L.marker([lat, lon]).addTo(map).bindPopup("Selected Property").openPopup();
+
+        // Load Burnet Parcels
+        fetch("./assets/data/burnet_parcels.geojson")
+          .then(res => res.json())
+          .then(data => {
+            const parcelLayer = L.geoJSON(data, {
+              style: {
+                color: "#0078A8",
+                weight: 1,
+                fillOpacity: 0.1
+              },
+              onEachFeature: (feature, layer) => {
+                if (feature.properties) {
+                  layer.bindPopup(
+                    Object.entries(feature.properties)
+                      .map(([k, v]) => `<strong>${k}</strong>: ${v}`)
+                      .join("<br>")
+                  );
+                }
+              }
+            });
+            parcelLayer.addTo(map);
+          })
+          .catch(err => console.error("Error loading GeoJSON:", err));
+
+        // Drawing Layer
+        const drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        const drawControl = new L.Control.Draw({
+          edit: { featureGroup: drawnItems },
+          draw: {
+            polygon: true, polyline: true, rectangle: true,
+            circle: false, marker: true
+          }
+        });
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function (e) {
+          const layer = e.layer;
+          drawnItems.addLayer(layer);
+          const geojson = drawnItems.toGeoJSON();
+          localStorage.setItem("siteDevSketch", JSON.stringify(geojson));
+        });
+
+        // Restore Sketches
+        const saved = localStorage.getItem("siteDevSketch");
+        if (saved) {
+          L.geoJSON(JSON.parse(saved)).eachLayer(layer => {
+            drawnItems.addLayer(layer);
+          });
+        }
+
+        // Measurement
+        L.control.measurePath({
+          showBearings: true,
+          showUnitControl: true,
+          measureControlTitleOn: 'Enable measuring tool',
+          measureControlTitleOff: 'Disable measuring tool',
+          unitControlUnits: {
+            length: 'feet',
+            area: 'acres'
+          }
+        }).addTo(map);
+      });
+    </script>
+
+    <footer class="bg-light text-center text-muted small py-2 border-top mt-4">
+      ⚠️ <strong>Disclaimer:</strong> All estimated costs in this app are for ballpark reference only and should not be used for bidding or final project costing.
+    </footer>
+
+  </body>
+</html>
